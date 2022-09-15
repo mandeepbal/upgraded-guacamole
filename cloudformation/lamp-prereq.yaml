@@ -1,0 +1,48 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Prequreistes ECR Repo Deployment"
+
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: 202209lamp
+      OwnershipControls: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
+
+  ECR:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: dockerhub/php
+      EncryptionConfiguration:
+        EncryptionType: "AES256"
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      RepositoryPolicyText:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowPushPull # https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-policy-examples.html
+            Effect: Allow
+            Principal:
+              AWS:
+                # Allow any IAM user/role in account to push and pull images since we don't yet know the
+                # IAM user for the fargate task or if there will be a pipeline to build and push the image
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - "ecr:BatchGetImage"
+              - "ecr:BatchCheckLayerAvailability"
+              - "ecr:CompleteLayerUpload"
+              - "ecr:GetDownloadUrlForLayer"
+              - "ecr:InitiateLayerUpload"
+              - "ecr:PutImage"
+              - "ecr:UploadLayerPart"
+      Tags:
+        - Key: "Cloudformation"
+          Value: "true"
+        - Key: "Environment"
+          Value: "Lamp"
+

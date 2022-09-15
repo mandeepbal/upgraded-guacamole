@@ -1,17 +1,27 @@
 .DEFAULT_GOAL:=help
 SHELL:=/bin/bash
 projName=lamps
+awsProfile=ktacct
 
 ##@ Build Commands
 
-.PHONY: build tf-fmt
+.PHONY: build push tf-fmt cft-validate
 
 build:  ## Build Docker Image
-	docker build -t ${projName}:${tag} .
+	cd scripts; \
+	./dckr-build.sh ${awsProfile} ${tag}
+
+push: build ## Build and Push Docker Image
+	cd scripts; \
+	./dckr-push.sh ${awsProfile} ${tag}
 
 tf-fmt:  ## Format Terraform Files
 	cd terraform; \
 	terraform fmt
+
+cft-validate:  ## Validate CFT
+	cd cloudformation; \
+	aws cloudformation validate-template --profile ${awsProfile} --template-body file://lamp-prereq.yaml
 
 ##@ Terraform Commands
 
