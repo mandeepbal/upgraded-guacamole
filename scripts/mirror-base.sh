@@ -3,7 +3,6 @@ set -ex
 
 awsProfile=$1
 awsRegion=$2
-imgName="dockerhub-mirror/php"
 acctNumber=$(aws sts get-caller-identity --profile ${awsProfile} --region ${awsRegion} --query Account --output text)
 ecrPath=${acctNumber}.dkr.ecr.${awsRegion}.amazonaws.com
 
@@ -11,4 +10,6 @@ ecrPath=${acctNumber}.dkr.ecr.${awsRegion}.amazonaws.com
 aws ecr get-login-password --profile ${awsProfile} --region ${awsRegion} | docker login --username AWS --password-stdin ${ecrPath}
 
 # Push Image
-docker push ${ecrPath}/${imgName}:${tag}
+docker pull php:apache
+docker tag php:apache ${ecrPath}/dockerhub-mirror/php:apache
+docker push ${ecrPath}/dockerhub-mirror/php:apache

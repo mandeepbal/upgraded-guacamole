@@ -2,18 +2,23 @@
 SHELL:=/bin/bash
 projName=lamps
 awsProfile=ktacct
+awsRegion=us-east-2
 
 ##@ Build Commands
 
-.PHONY: build push tf-fmt cft-validate
+.PHONY: build push mirror-base tf-fmt cft-validate
 
 build:  ## Build Docker Image
 	cd scripts; \
-	./dckr-build.sh ${awsProfile} ${tag}
+	./dckr-build.sh ${awsProfile} ${awsRegion} ${tag}
 
 push: build ## Build and Push Docker Image
 	cd scripts; \
-	./dckr-push.sh ${awsProfile} ${tag}
+	./dckr-push.sh ${awsProfile} ${awsRegion} ${tag}
+
+mirror-base:  ## Build and Push Docker Image
+	cd scripts; \
+	./mirror-base.sh ${awsProfile} ${awsRegion}
 
 tf-fmt:  ## Format Terraform Files
 	cd terraform; \
@@ -21,7 +26,7 @@ tf-fmt:  ## Format Terraform Files
 
 cft-validate:  ## Validate CFT
 	cd cloudformation; \
-	aws cloudformation validate-template --profile ${awsProfile} --template-body file://lamp-prereq.yaml
+	aws cloudformation validate-template --profile ${awsProfile} --region ${awsRegion} --template-body file://lamp-prereq.yaml
 
 ##@ Terraform Commands
 

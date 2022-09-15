@@ -2,13 +2,14 @@
 set -ex
 
 awsProfile=$1
-tag=$2
-acctNumber=$(aws sts get-caller-identity --profile ${awsProfile} --query Account --output text)
-ecrPath=${acctNumber}.dkr.ecr.region.amazonaws.com
+awsRegion=$2
+imgName="dockerhub-mirror/php"
+acctNumber=$(aws sts get-caller-identity --profile ${awsProfile} --region ${awsRegion} --query Account --output text)
+ecrPath=${acctNumber}.dkr.ecr.${awsRegion}.amazonaws.com
 
 # Login to ECR
-aws ecr get-login-password --profile ${awsProfile} | docker login --username AWS --password-stdin ${ecrPath}
+aws ecr get-login-password --profile ${awsProfile} --region ${awsRegion} | docker login --username AWS --password-stdin ${ecrPath}
 
 # Build Image
 cd ..
-docker build -t ${ecrPath}/php-hw:${tag} .
+docker build -t ${ecrPath}/${imgName}:${tag} .
