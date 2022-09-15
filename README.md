@@ -12,7 +12,15 @@ Deploys to AWS
 
 ### Perquisite Steps
 
-We need bucket for storing TF state.
+Before we can deploy the rest of the project we need a bucket for storing the terraform state and ECR repositories for the container images.
+
+#### Deploy Step
+
+```bash
+AWS_PROFILE=ktacct AWS_DEFAULT_REGION=us-east-2 aws cloudformation deploy \
+  --template-file cloudformation/lamp-prereq.yaml \
+  --stack-name "lamp-prereq"
+```
 
 #### TF State Bucket
 
