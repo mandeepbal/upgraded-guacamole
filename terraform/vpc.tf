@@ -10,6 +10,11 @@ module "vpc" {
   tags = {
     Module = "terraform-aws-modules/vpc/aws"
   }
+
+  # NAT GW needed for ECR https://stackoverflow.com/questions/61265108/aws-ecs-fargate-resourceinitializationerror-unable-to-pull-secrets-or-registry
+  enable_nat_gateway     = true
+  single_nat_gateway     = true
+  one_nat_gateway_per_az = false
 }
 
 # Create SG for the ALB
@@ -79,9 +84,9 @@ resource "aws_security_group" "lamp_rds" {
   }
 
   egress {
-    protocol         = "-1"
-    from_port        = 0
-    to_port          = 0
+    protocol         = "tcp"
+    from_port        = 3306
+    to_port          = 3306
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
