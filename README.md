@@ -34,5 +34,26 @@ make mirror-base tag=202209151750
 
 ## Terraform Deployment of App
 
-Deploys to AWS
+Requirements:
+  - [Terraform Installed](https://github.com/tfutils/tfenv) (`tfenv use 1.2.9`)
 
+Once the image is uploaded to ECR, create a `settings.auto.tfvars` with the image uri in the `./terraform` directory.
+
+Example `settings.auto.tfvars`
+```hcl
+img_uri = "<ACCOUNT_NUMBER>.dkr.ecr.us-east-2.amazonaws.com/dockerhub-mirror/php:apache"
+```
+`./terraform` Directory:
+```
+./terraform
+├── main.tf
+├── outputs.tf
+├── settings.auto.tfvars
+├── variables.tf
+└── versions.tf
+```
+
+Check Terraform plan:
+```
+AWS_PROFILE=ktacct AWS_DEFAULT_REGION=us-east-2 make plan
+```
