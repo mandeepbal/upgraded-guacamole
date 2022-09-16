@@ -3,7 +3,7 @@ set -ex
 
 awsProfile=$1
 awsRegion=$2
-imgName="dockerhub-mirror/php"
+imgName="lamp/web"
 acctNumber=$(aws sts get-caller-identity --profile ${awsProfile} --region ${awsRegion} --query Account --output text)
 ecrPath=${acctNumber}.dkr.ecr.${awsRegion}.amazonaws.com
 
@@ -13,3 +13,4 @@ aws ecr get-login-password --profile ${awsProfile} --region ${awsRegion} | docke
 # Build Image
 cd ..
 docker build -t ${ecrPath}/${imgName}:${tag} .
+echo "New Image URI: ${ecrPath}/${imgName}:${tag}"
