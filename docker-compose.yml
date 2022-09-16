@@ -2,7 +2,7 @@ version: "3"
 
 services:
   web:
-    image: "lamps:6"
+    image: "<ACCT_NUMBER>.dkr.ecr.us-east-2.amazonaws.com/lamp/web:202209152248"
     restart: 'always'
     depends_on:
       - mysql

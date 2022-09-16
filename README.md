@@ -41,7 +41,7 @@ Once the image is uploaded to ECR, create a `settings.auto.tfvars` with the imag
 
 Example `settings.auto.tfvars`
 ```hcl
-img_uri = "<ACCOUNT_NUMBER>.dkr.ecr.us-east-2.amazonaws.com/dockerhub-mirror/php:apache"
+img_uri = "<ACCOUNT_NUMBER>.dkr.ecr.us-east-2.amazonaws.com/lamp/web:<TAG-HERE>"
 ```
 `./terraform` Directory:
 ```
@@ -56,4 +56,24 @@ img_uri = "<ACCOUNT_NUMBER>.dkr.ecr.us-east-2.amazonaws.com/dockerhub-mirror/php
 Check Terraform plan:
 ```
 AWS_PROFILE=ktacct AWS_DEFAULT_REGION=us-east-2 make plan
+```
+
+Deploy Terraform:
+```
+AWS_PROFILE=ktacct AWS_DEFAULT_REGION=us-east-2 make apply
+```
+
+## Pushing changes to AWS
+
+1. Build and push new image
+```
+make push tag=202209152305
+```
+2. Update `settings.auto.tfvars` file with new tag
+```
+img_uri = "487169596959.dkr.ecr.us-east-2.amazonaws.com/lamp/web:202209152248"
+```
+3. Terraform apply to update the ECS service and task definition
+```
+AWS_PROFILE=ktacct AWS_DEFAULT_REGION=us-east-2 make apply
 ```
