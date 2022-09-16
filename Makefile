@@ -6,7 +6,7 @@ awsRegion=us-east-2
 
 ##@ Build Commands
 
-.PHONY: build push mirror-base tf-fmt cft-validate
+.PHONY: build push mirror-base tf-fmt tf-lock cft-validate
 
 build:  ## Build Docker Image
 	cd scripts; \
@@ -23,6 +23,14 @@ mirror-base:  ## Build and Push Docker Image
 tf-fmt:  ## Format Terraform Files
 	cd terraform; \
 	terraform fmt
+
+tf-lock:  ## Format Terraform Files
+	cd terraform; \
+	terraform providers lock \
+  -platform=linux_arm64 \
+  -platform=linux_amd64 \
+  -platform=darwin_amd64 \
+  -platform=windows_amd64
 
 cft-validate:  ## Validate CFT
 	cd cloudformation; \
