@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 # Create ECS Cluster
 resource "aws_ecs_cluster" "lamp" {
   name = "lamp"
@@ -14,7 +16,7 @@ resource "aws_ecs_task_definition" "lamp_web" {
   task_role_arn            = aws_iam_role.ecs_task_web.arn
   container_definitions = jsonencode([{
     name      = "web"
-    image     = "${var.img_uri}:latest"
+    image     = "${var.img_uri}"
     essential = true
     portMappings = [
       {
@@ -22,6 +24,14 @@ resource "aws_ecs_task_definition" "lamp_web" {
         protocol      = "tcp"
       }
     ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.lamp.name
+        awslogs-region        = data.aws_region.current.name
+        awslogs-stream-prefix = "web"
+      }
+    }
   }])
 }
 
@@ -37,17 +47,17 @@ resource "aws_ecs_service" "lamp_web" {
 
   network_configuration {
     security_groups  = [aws_security_group.lamp_web.id]
-    subnets          = module.vpc.public_subnets
+    subnets          = module.vpc.private_subnets
     assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = aws_alb_target_group.lamp_web.arn
-    container_name   = "lamp-web-task"
+    container_name   = "web"
     container_port   = 80
   }
+}
 
-  lifecycle {
-    ignore_changes = [task_definition, desired_count]
-  }
+resource "aws_cloudwatch_log_group" "lamp" {
+  name = "/fargate/service/lamp"
 }
